@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1078083123143",
+    "project_id": "loginexemplo-78fbc",
+    "storage_bucket": "loginexemplo-78fbc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1078083123143:android:70bfeb419f630e89da4be2",
+        "android_client_info": {
+          "package_name": "empresa.tipodaapp.loginexemplo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdrQofUQZgRtUNSbnwiPUsGRXMORRfebs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1078083123143",
+    "project_id": "loginexemplo-78fbc",
+    "storage_bucket": "loginexemplo-78fbc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1078083123143:android:70bfeb419f630e89da4be2",
+        "android_client_info": {
+          "package_name": "empresa.tipodaapp.loginexemplo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1078083123143-9g9iiqkuapqhsi3boff1rj5jrgtmikas.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "empresa.tipodaapp.loginexemplo",
+            "certificate_hash": "5f27f7e68dcbf3da0ba7af2b6d87bea28f144de7"
+          }
+        },
+        {
+          "client_id": "1078083123143-871atnsel4krmd7njdev0l9ic6efe2ad.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdrQofUQZgRtUNSbnwiPUsGRXMORRfebs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1078083123143-871atnsel4krmd7njdev0l9ic6efe2ad.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

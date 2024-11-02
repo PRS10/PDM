@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">LoginExemplo</string>
+    <string name="Header">Login</string>
+    <string name="SignUp">SignUp</string>
+    <string name="web_client_id">1078083123143-871atnsel4krmd7njdev0l9ic6efe2ad.apps.googleusercontent.com</string>
+</resources>
