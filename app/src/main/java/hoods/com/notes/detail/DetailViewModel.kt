@@ -9,6 +9,19 @@ import com.google.firebase.auth.FirebaseUser
 import hoods.com.notes.models.Notes
 import hoods.com.notes.repository.StorageRepository
 
+data class DetailState(
+    val colorIndex: Int = 0,
+    val title: String = "",
+    val note: String = "",
+    val noteAddedStatus: Boolean = false,
+    val updateNoteStatus: Boolean = false,
+    val selectedNote: Notes? = null,
+    val searchQuery: String = "",
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val filteredNotes: List<Notes> = emptyList()
+)
+
 class DetailViewModel(
     private val repository: StorageRepository = StorageRepository(),
 ) : ViewModel() {
@@ -96,7 +109,9 @@ class DetailViewModel(
     }
 
 
+    fun shareNote(noteId:String){
 
+    }
 
 
 

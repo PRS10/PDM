@@ -46,6 +46,12 @@ class HomeViewModel(
 
     fun signOut() = repository.signOut()
 
+    fun shareNote(note:Notes, userId:String = user?.uid ?: ""){
+
+//        repository.shareNote(note){
+//            homeUiState = homeUiState.copy(shareNoteStatus = it)
+//        }
+    }
 
 
 
@@ -59,6 +65,7 @@ class HomeViewModel(
 data class HomeUiState(
     val notesList: Resources<List<Notes>> = Resources.Loading(),
     val noteDeletedStatus: Boolean = false,
+    val shareNoteStatus: Boolean = false,
 )
 
 

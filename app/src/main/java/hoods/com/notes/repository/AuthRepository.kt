@@ -2,11 +2,15 @@ package hoods.com.notes.repository
 
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlin.math.truncate
+const val USERS_COLLECTION_REF = "users"
+
 
 class AuthRepository {
     val currentUser: FirebaseUser? = Firebase.auth.currentUser
@@ -31,6 +35,8 @@ class AuthRepository {
             }.await() // para não bloquear o programa
     }
 
+
+
     suspend fun login(
         email: String,
         password: String,
@@ -47,12 +53,28 @@ class AuthRepository {
             }.await() // para não bloquear o programa
     }
 
-    suspend fun addUserToCollection(
+    fun addUserToCollection(
         email: String,
-        password: String,
+        userId: String,
         onComplete: (Boolean) -> Unit
     ){
-        Firebase
+        val userRef: CollectionReference = Firebase
+            .firestore.collection(USERS_COLLECTION_REF)
+
+        val documentId = userRef.document().id // not needed!
+
+        val user = hashMapOf(
+            "email" to email,
+        )
+
+        userRef.document(userId)
+            .set(user)
+            .addOnCompleteListener { result ->
+                onComplete.invoke(result.isSuccessful)
+            }
+
+
+
     }
 
     fun logout() {

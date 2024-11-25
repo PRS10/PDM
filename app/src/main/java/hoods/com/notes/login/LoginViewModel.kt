@@ -70,6 +70,15 @@ class LoginViewModel(
                 loginUiState.passwordSignUp
             ) { isSuccessful ->
                 if (isSuccessful) {
+
+
+                    repository.addUserToCollection(
+                            email = loginUiState.userNameSignUp,
+                            userId =  repository.getUserId(),
+                            onComplete = {}
+                    )
+
+
                     Toast.makeText(
                         context,
                         "success Login",

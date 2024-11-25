@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.callbackFlow
 
 const val NOTES_COLLECTION_REF = "notes"
 
+
 class StorageRepository {
 
     fun user() = Firebase.auth.currentUser

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -70,39 +71,46 @@ fun DetailScreen(
         scaffoldState = scaffoldState,
         floatingActionButton = {
 //            AnimatedVisibility(visible = isFormsNotBlank) {
+
+            Row {
                 FloatingActionButton(
-                    onClick = {
-                        if (isNoteIdNotBlank) {
-                            detailViewModel?.updateNote(noteId)
-//                            onNavigate.invoke() // add
-                        } else {
-                            detailViewModel?.addNote()
+                        onClick = {
+                            if (isNoteIdNotBlank) {
+                                detailViewModel?.updateNote(noteId)
+                            } else {
+                                detailViewModel?.addNote()
+                            }
                         }
-                    }
                 ) {
                     Icon(
-                        imageVector = icon,
-                        contentDescription = null,
+                            imageVector = icon,
+                            contentDescription = null,
                     )
                 }
+                Spacer(modifier = Modifier.size(16.dp))
 
-            //share
-            FloatingActionButton(
-                    onClick = {
-                        if (isNoteIdNotBlank) {
-                            detailViewModel?.updateNote(noteId)
+                //share
+                FloatingActionButton(
+                        onClick = {
+                            if (isNoteIdNotBlank) {
+                                detailViewModel?.shareNote(noteId)
 //                            onNavigate.invoke() // add
-                        } else {
-                            detailViewModel?.addNote()
+                            } else {
+                                detailViewModel?.shareNote(noteId)
+                            }
                         }
-                    }
-            ) {
-                Icon(
-                        imageVector = iconShare,
-                        contentDescription = null,
+                ) {
+                    Icon(
+                            imageVector = iconShare,
+                            contentDescription = null,
 
-                )
+                            )
+                }
+
             }
+
+
+
 
 
 

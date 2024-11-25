@@ -10,5 +10,4 @@ data class Notes(
     val color: Int = 0,
     val documentId: String = "",
     val owners: List<String> = listOf()
-
 )
