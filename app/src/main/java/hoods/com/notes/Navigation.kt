@@ -176,7 +176,9 @@ package hoods.com.notes
 
 import Home
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -188,6 +190,7 @@ import hoods.com.notes.home.UserSearchPage
 import hoods.com.notes.login.LoginScreen
 import hoods.com.notes.login.LoginViewModel
 import hoods.com.notes.login.SignUpScreen
+import hoods.com.notes.repository.StorageRepository
 
 enum class LoginRoutes {
     Signup,
@@ -293,8 +296,8 @@ fun NavGraphBuilder.homeGraph(
                             popUpTo(0) { inclusive = true }
                         }
                     },
-                    navToSearchUserPage = {
-                        navController.navigate(HomeRoutes.SearchUser.name) // Corrigido aqui
+                    navToSearchUserPage = { noteId ->  // Adicione o parâmetro noteId aqui
+                        navController.navigate(HomeRoutes.SearchUser.name + "?noteId=$noteId")
                     }
             )
         }
@@ -314,9 +317,27 @@ fun NavGraphBuilder.homeGraph(
             }
         }
 
-        // Adicionei a rota de procura de utilizador aqui
-        composable(HomeRoutes.SearchUser.name) {
-            UserSearchPage() // Tela de procura de utilizador
-        }
+            // Na sua Navigation.kt
+            composable(
+                    route = HomeRoutes.SearchUser.name + "?noteId={noteId}",
+                    arguments = listOf(navArgument("noteId") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    })
+            ) { entry ->
+                val noteId = entry.arguments?.getString("noteId") ?: ""
+                UserSearchPage(
+                        documentId = noteId,
+                        onShareComplete = { success ->
+                            if (success) {
+                                navController.navigateUp()
+                            }
+                        },
+                        onDismiss = {
+                            navController.navigateUp()
+                        }
+                )
+            }
+
     }
 }

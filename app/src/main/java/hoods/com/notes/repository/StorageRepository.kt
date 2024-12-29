@@ -2,8 +2,11 @@ package hoods.com.notes.repository
 
 import android.util.Log
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
@@ -18,7 +21,7 @@ const val NOTES_COLLECTION_REF = "notes"
 
 
 class StorageRepository {
-
+    private val auth = Firebase.auth
     fun user() = Firebase.auth.currentUser
     fun hasUser(): Boolean = Firebase.auth.currentUser != null
 
@@ -28,15 +31,13 @@ class StorageRepository {
         .firestore.collection(NOTES_COLLECTION_REF)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getUserNotes(
-        userId: String,
-    ): Flow<Resources<List<Notes>>> = callbackFlow {
+    fun getUserNotes(userId: String): Flow<Resources<List<Notes>>> = callbackFlow {
         var snapshotStateListener: ListenerRegistration? = null
 
         try {
+            // Simplificando a query temporariamente
             snapshotStateListener = notesRef
-                .orderBy("timestamp")
-                .whereEqualTo("userId", userId)
+                .whereArrayContains("owners", userId)
                 .addSnapshotListener { snapshot, e ->
                     val response = if (snapshot != null) {
                         val notes = snapshot.toObjects(Notes::class.java)
@@ -45,10 +46,7 @@ class StorageRepository {
                         Resources.Error(throwable = e?.cause)
                     }
                     trySend(response)
-
                 }
-
-
         } catch (e: Exception) {
             trySend(Resources.Error(e.cause))
             e.printStackTrace()
@@ -57,10 +55,7 @@ class StorageRepository {
         awaitClose {
             snapshotStateListener?.remove()
         }
-
-
     }
-
     fun getNote(
         noteId:String,
         onError:(Throwable?) -> Unit,
@@ -150,6 +145,39 @@ class StorageRepository {
 
     fun signOut() = Firebase.auth.signOut()
 
+    fun observeUser(onUserChanged: (FirebaseUser?) -> Unit) {
+        auth.addAuthStateListener { firebaseAuth ->
+            onUserChanged(firebaseAuth.currentUser)
+        }
+    }
+
+    fun addOwnerToNote(
+        noteId: String,
+        userId: String,
+        onComplete: (Boolean) -> Unit
+    ) {
+        notesRef.document(noteId)
+            .update("owners", FieldValue.arrayUnion(userId)) // Usa arrayUnion para adicionar sem duplicar
+            .addOnCompleteListener { task ->
+                onComplete.invoke(task.isSuccessful)
+            }
+    }
+
+    fun shareNoteWithUser(note: Notes, userId: String) {
+        val updatedOwners = note.owners.toMutableList().apply { add(userId) }
+        val updateData = mapOf("owners" to updatedOwners)
+
+        FirebaseFirestore.getInstance()
+            .collection("notes")
+            .document(note.documentId)
+            .update(updateData)
+            .addOnSuccessListener {
+                Log.d("UserSearchPage", "Note shared successfully with user: $userId")
+            }
+            .addOnFailureListener { e ->
+                Log.e("UserSearchPage", "Error sharing note: ${e.localizedMessage}")
+            }
+    }
 
 }
 

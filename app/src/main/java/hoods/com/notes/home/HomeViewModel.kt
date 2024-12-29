@@ -10,75 +10,73 @@ import hoods.com.notes.repository.Resources
 import hoods.com.notes.repository.StorageRepository
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-
 class HomeViewModel(
-    private val repository: StorageRepository = StorageRepository(),
+    private val repository: StorageRepository = StorageRepository()
 ) : ViewModel() {
     var homeUiState by mutableStateOf(HomeUiState())
+        private set
 
-    val user = repository.user()
+    // Criar um estado separado para o usuário
+    var currentUser by mutableStateOf(repository.user())
+        private set
+
     val hasUser: Boolean
         get() = repository.hasUser()
     private val userId: String
         get() = repository.getUserId()
 
-    fun loadNotes(){
-        if (hasUser){
-            if (userId.isNotBlank()){
+    init {
+        loadNotes()
+        // Observar mudanças no usuário
+        repository.observeUser { user ->
+            currentUser = user
+            if (user != null) {
+                loadNotes()
+            }
+        }
+    }
+
+    fun loadNotes() {
+        if (hasUser) {
+            if (userId.isNotBlank()) {
                 getUserNotes(userId)
             }
-        }else{
+        } else {
             homeUiState = homeUiState.copy(notesList = Resources.Error(
-                throwable = Throwable(message = "User is not Login")
+                    throwable = Throwable(message = "User is not Login")
             ))
         }
     }
 
-    private fun getUserNotes(userId:String) = viewModelScope.launch {
-        repository.getUserNotes(userId).collect {
-            homeUiState = homeUiState.copy(notesList = it)
+    private fun getUserNotes(userId: String) = viewModelScope.launch {
+        repository.getUserNotes(userId).collect { result ->
+            when (result) {
+                is Resources.Success -> {
+                    val notes = result.data ?: emptyList()
+                    val ownNotes = notes.filter { it.userId == userId }
+                    val sharedNotes = notes.filter { it.userId != userId }
+
+                    homeUiState = homeUiState.copy(
+                            notesList = result,
+                            ownNotes = ownNotes,
+                            sharedNotes = sharedNotes
+                    )
+                }
+                else -> homeUiState = homeUiState.copy(notesList = result)
+            }
         }
     }
 
-    fun deleteNote(noteId:String) = repository.deleteNote(noteId){
+    fun deleteNote(noteId: String) = repository.deleteNote(noteId) {
         homeUiState = homeUiState.copy(noteDeletedStatus = it)
     }
 
     fun signOut() = repository.signOut()
-
-    fun shareNote(note:Notes, userId:String = user?.uid ?: ""){
-
-//        repository.shareNote(note){
-//            homeUiState = homeUiState.copy(shareNoteStatus = it)
-//        }
-    }
-
-
-
-
-
-
-
-
 }
-
 data class HomeUiState(
     val notesList: Resources<List<Notes>> = Resources.Loading(),
+    val ownNotes: List<Notes> = emptyList(),
+    val sharedNotes: List<Notes> = emptyList(),
     val noteDeletedStatus: Boolean = false,
-    val shareNoteStatus: Boolean = false,
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

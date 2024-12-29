@@ -1,6 +1,7 @@
 package hoods.com.notes.login
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -130,6 +131,7 @@ class LoginViewModel(
                         Toast.LENGTH_SHORT
                     ).show()
                     loginUiState = loginUiState.copy(isSuccessLogin = true)
+                    Log.d("LoginViewModel", "loginUser: ${repository.getUserId()}")
                 } else {
                     Toast.makeText(
                         context,

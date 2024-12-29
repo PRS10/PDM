@@ -8,6 +8,9 @@
       <SelectionState runConfigName="Firebase_Notes_App.Notes.app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="PDM.Firebase_Notes_App.Notes.app">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

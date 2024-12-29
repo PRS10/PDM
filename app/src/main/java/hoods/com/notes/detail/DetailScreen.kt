@@ -54,8 +54,6 @@ fun DetailScreen(
     else Icons.Default.Face
 
 
-
-
     LaunchedEffect(key1 = Unit) {
         if (isNoteIdNotBlank) {
             detailViewModel?.getNote(noteId)
