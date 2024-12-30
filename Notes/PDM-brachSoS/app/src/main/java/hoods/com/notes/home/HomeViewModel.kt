@@ -10,6 +10,16 @@ import hoods.com.notes.repository.Resources
 import hoods.com.notes.repository.StorageRepository
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+
+data class HomeUiState(
+    val notesList: Resources<List<Notes>> = Resources.Loading(),
+    val ownNotes: List<Notes> = emptyList(),
+    val sharedNotes: List<Notes> = emptyList(),
+    val favoriteNotes: List<Notes> = emptyList(),  // Nova lista para favoritos
+    val noteDeletedStatus: Boolean = false,
+)
+
+
 class HomeViewModel(
     private val repository: StorageRepository = StorageRepository()
 ) : ViewModel() {
@@ -73,10 +83,9 @@ class HomeViewModel(
 
     fun signOut() = repository.signOut()
 }
-data class HomeUiState(
-    val notesList: Resources<List<Notes>> = Resources.Loading(),
-    val ownNotes: List<Notes> = emptyList(),
-    val sharedNotes: List<Notes> = emptyList(),
-    val noteDeletedStatus: Boolean = false,
-)
+
+
+
+
+
 

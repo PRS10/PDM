@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.lazy.grid.*
 //noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.ContentAlpha
+import androidx.compose.material.icons.filled.Favorite
 //noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.ui.Modifier
@@ -97,6 +98,32 @@ fun Home(
                             columns = GridCells.Fixed(2),
                             contentPadding = PaddingValues(16.dp),
                     ) {
+
+                        if (homeUiState.favoriteNotes.isNotEmpty()) {
+                            item(span = { GridItemSpan(2) }) {
+                                Text(
+                                        text = "Favorites",
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+
+                            items(homeUiState.favoriteNotes) { note ->
+                                NoteItem(
+                                        notes = note,
+                                        onLongClick = {
+                                            selectedNote = note
+                                            openDialog = true
+                                        },
+                                        onClick = { onNoteClick(note.documentId) },
+                                        isFavorite = true  // Novo parâmetro para mostrar ícone de favorito
+                                )
+                            }
+                        }
+
+
+
+
                         if (homeUiState.ownNotes.isNotEmpty()) {
                             item(span = { GridItemSpan(2) }) {
                                 Column(
@@ -232,7 +259,8 @@ fun NoteItem(
     notes: Notes,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
-    isShared: Boolean = false
+    isShared: Boolean = false,
+    isFavorite: Boolean = false
 ) {
     Card(
             modifier = Modifier
@@ -266,13 +294,24 @@ fun NoteItem(
                             .padding(end = 8.dp)
                 )
 
-                if (isShared) {
-                    Icon(
-                            imageVector = Icons.Default.Share,
-                            contentDescription = "Shared note",
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
+                Row {
+                    if (isFavorite) {
+                        Icon(
+                                imageVector = Icons.Default.Favorite,
+                                contentDescription = "Favorite note",
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                    if (isShared) {
+                        Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Shared note",
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    }
                 }
             }
 

@@ -17,20 +17,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 
-data class DetailState(
+
+data class DetailUiState(
     val colorIndex: Int = 0,
     val title: String = "",
     val note: String = "",
     val noteAddedStatus: Boolean = false,
     val updateNoteStatus: Boolean = false,
     val selectedNote: Notes? = null,
-    val searchQuery: String = "",
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val filteredNotes: List<Notes> = emptyList(),
-    val isFavorite: Boolean = false  // New field for favorite state
-
+    val isFavorite: Boolean = true  // New field for favorite state
 )
+
 
 
 class DetailViewModel(
@@ -127,19 +124,21 @@ class DetailViewModel(
         detailUiState = DetailUiState()
     }
 
+    private fun onFavoriteChange(isFavorite: Boolean) {
+        detailUiState = detailUiState.copy(isFavorite = isFavorite)
+    }
+
     fun checkFavoriteStatus(noteId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val user = user
             if (user != null) {
-                itemDao.getFavByUserAndNote(user.uid, noteId)
-                    .firstOrNull()?.let { fav ->
-                        withContext(Dispatchers.Main) {
-                            detailUiState = detailUiState.copy(
-                                    isFavorite = fav.favorite
-                            )
-                        }
-                    }
-                Log.d("DetailViewModel", "Favorite status checked for noteId: $noteId")
+                Log.d("DetailViewModel","DEBUG: Checking favorite status for noteId: $noteId and userId: ${user.uid}")
+                val fav = itemDao.getFavByUserAndNote(user.uid, noteId).firstOrNull()
+                Log.d("DetailViewModel","DEBUG: Found favorite: $fav")
+
+                withContext(Dispatchers.Main) {
+                    onFavoriteChange(fav?.favorite ?: false)
+                }
             }
         }
     }
@@ -148,6 +147,7 @@ class DetailViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val user = user
             if (user != null) {
+                Log.d("DetailViewModel","DEBUG: Toggling favorite for noteId: $noteId and userId: ${user.uid}")
                 val fav = itemDao.getFavByUserAndNote(user.uid, noteId).firstOrNull()
 
                 if (fav == null) {
@@ -157,36 +157,26 @@ class DetailViewModel(
                             noteID = noteId,
                             favorite = true
                     )
+                    Log.d("DetailViewModel","DEBUG: Inserting new favorite: $newFav")
                     itemDao.insert(newFav)
-                    Log.d("DetailViewModel", "Favorite status toggled for noteId: $noteId")
                 } else {
+                    Log.d("DetailViewModel","DEBUG: Found existing favorite: $fav")
                     val updatedFav = fav.copy(favorite = !fav.favorite)
+                    Log.d("DetailViewModel","DEBUG: Updating to: $updatedFav")
                     itemDao.update(updatedFav)
-                    Log.d("DetailViewModel", "Favorite status toggled for noteId: $noteId")
                 }
 
                 withContext(Dispatchers.Main) {
-                    detailUiState = detailUiState.copy(
-                            isFavorite = !detailUiState.isFavorite
-                    )
+                    onFavoriteChange(!detailUiState.isFavorite)
                 }
             }
         }
     }
 
+
 }
 
 
-
-data class DetailUiState(
-    val colorIndex: Int = 0,
-    val title: String = "",
-    val note: String = "",
-    val noteAddedStatus: Boolean = false,
-    val updateNoteStatus: Boolean = false,
-    val selectedNote: Notes? = null,
-    val isFavorite: Boolean = false  // New field for favorite state
-)
 
 
 

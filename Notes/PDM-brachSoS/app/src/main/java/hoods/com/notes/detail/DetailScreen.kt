@@ -42,8 +42,6 @@ fun DetailScreen(
 ) {
     val detailUiState = detailViewModel?.detailUiState ?: DetailUiState()
 
-    val isFormsNotBlank = detailUiState.note.isNotBlank() &&
-            detailUiState.title.isNotBlank()
 
     val selectedColor by animateColorAsState(
             targetValue = Utils.colors[detailUiState.colorIndex]
@@ -52,20 +50,22 @@ fun DetailScreen(
     val icon = if (isNoteIdNotBlank) Icons.Default.Refresh
     else Icons.Default.Check
 
+
+
+    LaunchedEffect(key1 = noteId) {  // Mudamos de Unit para noteId
+        if (isNoteIdNotBlank) {
+            detailViewModel?.getNote(noteId)
+            detailViewModel?.checkFavoriteStatus(noteId)
+        } else {
+            detailViewModel?.resetState()
+        }
+    }
     val favIcon = if (detailUiState.isFavorite) {
         Icons.Default.Favorite
     } else {
         Icons.Default.FavoriteBorder
     }
 
-    LaunchedEffect(key1 = Unit) {
-        if (isNoteIdNotBlank) {
-            detailViewModel?.getNote(noteId)
-            detailViewModel?.checkFavoriteStatus(noteId) // Nova linha adicionada
-        } else {
-            detailViewModel?.resetState()
-        }
-    }
     val scope = rememberCoroutineScope()
 
     val scaffoldState = rememberScaffoldState()
@@ -89,19 +89,24 @@ fun DetailScreen(
                         )
                     }
                     Spacer(modifier = Modifier.size(16.dp))
-                    FloatingActionButton(
-                            onClick = {
-                                if (isNoteIdNotBlank) {
-                                    detailViewModel?.toggleFavorite(noteId) // Modificado para passar noteId
+                    if (isNoteIdNotBlank) {
+                        FloatingActionButton(
+                                onClick = {
+                                        detailViewModel?.toggleFavorite(noteId) // Modificado para passar noteId
+
                                 }
-                            }
-                    ) {
-                        Icon(
-                                imageVector = favIcon,
-                                contentDescription = if (detailUiState.isFavorite)
-                                    "Remove from favorites" else "Add to favorites"
-                        )
+                        ) {
+                            Icon(
+                                    imageVector = favIcon,
+                                    contentDescription = if (detailUiState.isFavorite)
+                                        "Remove from favorites" else "Add to favorites"
+                            )
+                        }
+
+                        Text(text = if (detailUiState.isFavorite)
+                            "Remove from favorites" else "Add to favorites ${detailUiState.isFavorite}")
                     }
+
                 }
             }
     ) { padding ->
