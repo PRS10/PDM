@@ -1,5 +1,6 @@
 package empresa.tipodaapp.loginexemplo.ui.theme.login
 
+import SignInViewModel
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,7 +54,7 @@ val itemSpacing = 8.dp
 fun LoginScreen(
     state: SignInState,
     onLoginClick: () -> Unit,
-    onSignUpClick: () -> Unit
+    onSignUpClick: () -> Unit,
 ){
     val (userName, setUsername) = rememberSaveable { // Guarda durante alterações na composição, Por exemplo se a orientação mudar...
         mutableStateOf("")
@@ -119,7 +120,7 @@ fun LoginScreen(
 
         )
         Spacer(Modifier.height(itemSpacing))
-        Row(
+        Row( // linha para lembrar e esqueceu a password
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -153,7 +154,6 @@ fun LoginScreen(
 
                     }
                     2 -> {
-
                         Toast.makeText(context, "Google Click", Toast.LENGTH_SHORT).show()
                         
                     }
@@ -222,10 +222,10 @@ fun ALternativeLoginOptions(
 @Composable
 fun PrevLoginScreen(){
     LoginExemploTheme {
-        LoginScreen(
-            state = SignInState(),onLoginClick = {}
-        ) {
-            
-        }
+//        LoginScreen(
+//            state = SignInState(),onLoginClick = {}
+//        ) {
+//
+//        }
     }
 }

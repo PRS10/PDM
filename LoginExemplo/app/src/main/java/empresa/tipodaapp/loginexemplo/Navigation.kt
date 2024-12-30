@@ -1,5 +1,6 @@
 package empresa.tipodaapp.loginexemplo
 
+import SignInViewModel
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination

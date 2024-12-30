@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "294002373425",
+    "project_id": "myshoppinglist-6ff96",
+    "storage_bucket": "myshoppinglist-6ff96.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:294002373425:android:c4ea37a158a5218ba1b610",
+        "android_client_info": {
+          "package_name": "ipca.aulas.myshoppinglist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY2WOY699q2yX-j6sE8DjfjkrjUnnu-BE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
