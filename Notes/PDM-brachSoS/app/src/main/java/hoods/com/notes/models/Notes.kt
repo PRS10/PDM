@@ -9,5 +9,6 @@ data class Notes(
     val timestamp: Timestamp = Timestamp.now(),
     val color: Int = 0,
     val documentId: String = "",
-    val owners: List<String> = listOf()
+    val owners: List<String> = listOf(),
+    val isFavorite: Boolean = false
 )

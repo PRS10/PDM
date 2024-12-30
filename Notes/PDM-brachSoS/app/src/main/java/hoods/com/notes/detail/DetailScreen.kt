@@ -15,6 +15,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Composable
@@ -44,17 +46,22 @@ fun DetailScreen(
             detailUiState.title.isNotBlank()
 
     val selectedColor by animateColorAsState(
-        targetValue = Utils.colors[detailUiState.colorIndex]
+            targetValue = Utils.colors[detailUiState.colorIndex]
     )
     val isNoteIdNotBlank = noteId.isNotBlank()
     val icon = if (isNoteIdNotBlank) Icons.Default.Refresh
     else Icons.Default.Check
 
-
+    val favIcon = if (detailUiState.isFavorite) {
+        Icons.Default.Favorite
+    } else {
+        Icons.Default.FavoriteBorder
+    }
 
     LaunchedEffect(key1 = Unit) {
         if (isNoteIdNotBlank) {
             detailViewModel?.getNote(noteId)
+            detailViewModel?.checkFavoriteStatus(noteId) // Nova linha adicionada
         } else {
             detailViewModel?.resetState()
         }
@@ -64,42 +71,46 @@ fun DetailScreen(
     val scaffoldState = rememberScaffoldState()
 
     Scaffold(
-        scaffoldState = scaffoldState,
-        floatingActionButton = {
-//            AnimatedVisibility(visible = isFormsNotBlank) {
-
-            Row {
-                FloatingActionButton(
-                        onClick = {
-                            if (isNoteIdNotBlank) {
-                                detailViewModel?.updateNote(noteId)
-                            } else {
-                                detailViewModel?.addNote()
+            scaffoldState = scaffoldState,
+            floatingActionButton = {
+                Row {
+                    FloatingActionButton(
+                            onClick = {
+                                if (isNoteIdNotBlank) {
+                                    detailViewModel?.updateNote(noteId)
+                                } else {
+                                    detailViewModel?.addNote()
+                                }
                             }
-                        }
-                ) {
-                    Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                    )
+                    ) {
+                        Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(16.dp))
+                    FloatingActionButton(
+                            onClick = {
+                                if (isNoteIdNotBlank) {
+                                    detailViewModel?.toggleFavorite(noteId) // Modificado para passar noteId
+                                }
+                            }
+                    ) {
+                        Icon(
+                                imageVector = favIcon,
+                                contentDescription = if (detailUiState.isFavorite)
+                                    "Remove from favorites" else "Add to favorites"
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.size(16.dp))
-
-
             }
-
-
-
-        },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = selectedColor)
-                .padding(padding)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = selectedColor)
+                    .padding(padding)
         ) {
-
-
             if (detailUiState.noteAddedStatus) {
                 scope.launch {
                     scaffoldState.snackbarHostState
@@ -119,47 +130,42 @@ fun DetailScreen(
             }
 
             LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                contentPadding = PaddingValues(
-                    vertical = 16.dp,
-                    horizontal = 8.dp,
-                )
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    contentPadding = PaddingValues(
+                            vertical = 16.dp,
+                            horizontal = 8.dp,
+                    )
             ) {
                 itemsIndexed(Utils.colors) { colorIndex, color ->
                     ColorItem(color = color) {
                         detailViewModel?.onColorChange(colorIndex)
                     }
-
                 }
             }
+
             OutlinedTextField(
-                value = detailUiState.title,
-                onValueChange = {
-                    detailViewModel?.onTitleChange(it)
-                },
-                label = { Text(text = "Title") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            )
-            OutlinedTextField(
-                value = detailUiState.note,
-                onValueChange = { detailViewModel?.onNoteChange(it) },
-                label = { Text(text = "Notes") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(8.dp)
+                    value = detailUiState.title,
+                    onValueChange = {
+                        detailViewModel?.onTitleChange(it)
+                    },
+                    label = { Text(text = "Title") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
             )
 
-
+            OutlinedTextField(
+                    value = detailUiState.note,
+                    onValueChange = { detailViewModel?.onNoteChange(it) },
+                    label = { Text(text = "Notes") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(8.dp)
+            )
         }
-
-
     }
-
-
 }
 
 @Composable

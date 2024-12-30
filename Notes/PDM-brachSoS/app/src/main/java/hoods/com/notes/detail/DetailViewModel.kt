@@ -1,13 +1,21 @@
 package hoods.com.notes.detail
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
+import hoods.com.notes.RoomApplication
+import hoods.com.notes.data.room.models.Fav
 import hoods.com.notes.models.Notes
 import hoods.com.notes.repository.StorageRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withContext
 
 data class DetailState(
     val colorIndex: Int = 0,
@@ -19,8 +27,11 @@ data class DetailState(
     val searchQuery: String = "",
     val isLoading: Boolean = false,
     val error: String? = null,
-    val filteredNotes: List<Notes> = emptyList()
+    val filteredNotes: List<Notes> = emptyList(),
+    val isFavorite: Boolean = false  // New field for favorite state
+
 )
+
 
 class DetailViewModel(
     private val repository: StorageRepository = StorageRepository(),
@@ -28,10 +39,12 @@ class DetailViewModel(
     var detailUiState by mutableStateOf(DetailUiState())
         private set
 
+    private val itemDao = RoomApplication.db.itemDao()
+
     private val hasUser: Boolean
         get() = repository.hasUser()
 
-    private val user:FirebaseUser?
+    private val user: FirebaseUser?
         get() = repository.user()
 
     fun onColorChange(colorIndex: Int) {
@@ -46,15 +59,16 @@ class DetailViewModel(
         detailUiState = detailUiState.copy(note = note)
     }
 
-    fun addNote(){
-        if (hasUser){
+    fun addNote() {
+        if (hasUser) {
             repository.addNote(
-                userId = user!!.uid,
-                title = detailUiState.title,
-                description = detailUiState.note,
-                color = detailUiState.colorIndex,
-                timestamp = Timestamp.now()
-            ){
+                    userId = user!!.uid,
+                    title = detailUiState.title,
+                    description = detailUiState.note,
+                    color = detailUiState.colorIndex,
+                    isFavorite = detailUiState.isFavorite,
+                    timestamp = Timestamp.now()
+            ) {
                 detailUiState = detailUiState.copy(noteAddedStatus = it)
             }
         }
@@ -62,21 +76,25 @@ class DetailViewModel(
 
     }
 
-    fun setEditFields(note: Notes){
+    fun setEditFields(note: Notes) {
         detailUiState = detailUiState.copy(
-            colorIndex = note.color,
-            title = note.title,
-            note = note.description
+                colorIndex = note.color,
+                title = note.title,
+                note = note.description,
+                isFavorite = note.isFavorite
+
         )
 
     }
 
-    fun getNote(noteId:String){
+    fun getNote(noteId: String) {
         repository.getNote(
-            noteId = noteId,
-            onError = {},
-        ){
+                noteId = noteId,
+                onError = {},
+        ) {
             detailUiState = detailUiState.copy(selectedNote = it)
+            setEditFields(it!!)
+
 
             detailUiState.selectedNote?.let { it1 -> setEditFields(it1) }
         }
@@ -84,36 +102,81 @@ class DetailViewModel(
 
     fun updateNote(
         noteId: String
-    ){
+    ) {
         repository.updateNote(
-            title = detailUiState.title,
-            note = detailUiState.note,
-            noteId = noteId,
-            color = detailUiState.colorIndex
-        ){
+                title = detailUiState.title,
+                note = detailUiState.note,
+                noteId = noteId,
+                color = detailUiState.colorIndex,
+                isFavorite = detailUiState.isFavorite
+        ) {
 
             detailUiState = detailUiState.copy(updateNoteStatus = it)
 
         }
     }
 
-    fun resetNoteAddedStatus(){
+    fun resetNoteAddedStatus() {
         detailUiState = detailUiState.copy(
-            noteAddedStatus = false,
-            updateNoteStatus = false,
+                noteAddedStatus = false,
+                updateNoteStatus = false,
         )
     }
 
-    fun resetState(){
+    fun resetState() {
         detailUiState = DetailUiState()
     }
 
+    fun checkFavoriteStatus(noteId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val user = user
+            if (user != null) {
+                itemDao.getFavByUserAndNote(user.uid, noteId)
+                    .firstOrNull()?.let { fav ->
+                        withContext(Dispatchers.Main) {
+                            detailUiState = detailUiState.copy(
+                                    isFavorite = fav.favorite
+                            )
+                        }
+                    }
+                Log.d("DetailViewModel", "Favorite status checked for noteId: $noteId")
+            }
+        }
+    }
 
+    fun toggleFavorite(noteId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val user = user
+            if (user != null) {
+                val fav = itemDao.getFavByUserAndNote(user.uid, noteId).firstOrNull()
 
+                if (fav == null) {
+                    val newFav = Fav(
+                            id = 0,
+                            userID = user.uid,
+                            noteID = noteId,
+                            favorite = true
+                    )
+                    itemDao.insert(newFav)
+                    Log.d("DetailViewModel", "Favorite status toggled for noteId: $noteId")
+                } else {
+                    val updatedFav = fav.copy(favorite = !fav.favorite)
+                    itemDao.update(updatedFav)
+                    Log.d("DetailViewModel", "Favorite status toggled for noteId: $noteId")
+                }
 
-
+                withContext(Dispatchers.Main) {
+                    detailUiState = detailUiState.copy(
+                            isFavorite = !detailUiState.isFavorite
+                    )
+                }
+            }
+        }
+    }
 
 }
+
+
 
 data class DetailUiState(
     val colorIndex: Int = 0,
@@ -122,10 +185,8 @@ data class DetailUiState(
     val noteAddedStatus: Boolean = false,
     val updateNoteStatus: Boolean = false,
     val selectedNote: Notes? = null,
+    val isFavorite: Boolean = false  // New field for favorite state
 )
-
-
-
 
 
 

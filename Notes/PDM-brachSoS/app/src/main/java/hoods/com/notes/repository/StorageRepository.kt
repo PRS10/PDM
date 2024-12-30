@@ -80,6 +80,7 @@ class StorageRepository {
         description: String,
         timestamp: Timestamp,
         color: Int = 0,
+        isFavorite: Boolean,
         onComplete: (Boolean) -> Unit,
     ){
         val documentId = notesRef.document().id
@@ -90,7 +91,8 @@ class StorageRepository {
             timestamp,
             color = color,
             documentId = documentId,
-            owners = listOf(userId)
+            owners = listOf(userId),
+            isFavorite = isFavorite
         )
         notesRef
             .document(documentId)
@@ -115,12 +117,14 @@ class StorageRepository {
         note:String,
         color: Int,
         noteId: String,
+        isFavorite: Boolean,
         onResult:(Boolean) -> Unit
     ){
         val updateData = hashMapOf<String,Any>(
             "color" to color,
             "description" to note,
             "title" to title,
+            "isFavorite" to isFavorite
         )
 
         notesRef.document(noteId)
