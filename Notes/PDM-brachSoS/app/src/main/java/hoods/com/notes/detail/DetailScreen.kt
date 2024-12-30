@@ -50,8 +50,6 @@ fun DetailScreen(
     val icon = if (isNoteIdNotBlank) Icons.Default.Refresh
     else Icons.Default.Check
 
-    val iconShare = if (isNoteIdNotBlank) Icons.Default.Share
-    else Icons.Default.Face
 
 
     LaunchedEffect(key1 = Unit) {
@@ -92,11 +90,6 @@ fun DetailScreen(
 
 
 
-
-
-
-
-//            }
         },
     ) { padding ->
         Column(
@@ -159,15 +152,7 @@ fun DetailScreen(
                     .weight(1f)
                     .padding(8.dp)
             )
-//            Button(
-//                onClick = {
-//                    detailViewModel?.addNote()
-//                },
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//            ){
-//                Text(text = "Save note" + noteId.isNotBlank() + " " + isNoteIdNotBlank)
-//            }
+
 
         }
 
@@ -189,7 +174,6 @@ fun ColorItem(
             .padding(8.dp)
             .size(36.dp)
             .clickable {
-//                onClick.invoke()
                 onClick()
             },
         border = BorderStroke(2.dp, Color.Black)
